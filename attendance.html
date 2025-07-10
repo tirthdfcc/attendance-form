@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Attendance Form</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    #attendanceForm, #successMsg {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🔐 Secure Attendance Form</h2>
+
+  <div id="loginForm">
+    <input type="password" id="password" placeholder="Enter Password" />
+    <button onclick="checkPassword()">Login</button>
+  </div>
+
+  <div id="attendanceForm">
+    <input type="text" id="name" placeholder="Enter Name" />
+    <input type="date" id="date" />
+    <select id="status">
+      <option value="Present">Present</option>
+      <option value="Absent">Absent</option>
+    </select>
+    <button onclick="submitAttendance()">Submit Attendance</button>
+  </div>
+
+  <div id="successMsg">
+    <p>✅ Attendance submitted successfully!</p>
+  </div>
+</div>
+
+<script>
+  const PASSWORD = "123";  // 🔒 Change your password here
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwUro4SI4riv5YVBRQcy_2g8Wzy-XXlgvWmdodNKgcfVCbXw3CW-UeH2UMfrAnyABpj4w/exec";  // Replace with your Apps Script URL
+
+  function checkPassword() {
+    const input = document.getElementById("password").value;
+    if (input === PASSWORD) {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("attendanceForm").style.display = "block";
+    } else {
+      alert("❌ Incorrect Password");
+    }
+  }
+
+  function submitAttendance() {
+    const name = document.getElementById("name").value;
+    const date = document.getElementById("date").value;
+    const status = document.getElementById("status").value;
+
+    if (!name || !date || !status) {
+      alert("⚠️ Please fill all fields.");
+      return;
+    }
+
+    const data = JSON.stringify([{ name, date, status }]);
+
+    fetch(SHEET_URL, {
+      method: "POST",
+      body: data,
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(response => response.text())
+    .then(result => {
+      document.getElementById("attendanceForm").style.display = "none";
+      document.getElementById("successMsg").style.display = "block";
+    })
+    .catch(error => {
+      alert("❌ Error submitting data.");
+      console.error("Fetch error:", error);
+    });
+  }
+</script>
+
+</body>
+</html>
